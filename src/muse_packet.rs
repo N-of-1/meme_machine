@@ -1,0 +1,160 @@
+use nannou_osc::rosc::OscMessage;
+use nannou_osc::rosc::OscType;
+use std::net::SocketAddr;
+
+#[derive(Clone, Debug)]
+pub struct MuseMessage {
+    pub ip_address: SocketAddr,
+    pub muse_message_type: MuseMessageType,
+}
+
+#[derive(Clone, Debug)]
+pub enum MuseMessageType {
+    Eeg { a: f32, b: f32, c: f32, d: f32 }, // microVolts
+    Accelerometer { x: f32, y: f32, z: f32 },
+    Gyro { x: f32, y: f32, z: f32 },
+    TouchingForehead { value: bool },
+    Horseshoe { a: f32, b: f32, c: f32, d: f32 },
+    AlphaAbsolute { a: f32, b: f32, c: f32, d: f32 }, // microVolts
+    BetaAbsolute { a: f32, b: f32, c: f32, d: f32 },  // microVolts
+    GammaAbsolute { a: f32, b: f32, c: f32, d: f32 }, // microVolts
+    DeltaAbsolute { a: f32, b: f32, c: f32, d: f32 }, // microVolts
+    ThetaAbsolute { a: f32, b: f32, c: f32, d: f32 }, // microVolts
+    Blink { value: bool },
+    Batt { value: i32 },
+    JawClench { value: bool },
+}
+
+pub fn parse_muse_packet(addr: SocketAddr, packet: &nannou_osc::Packet) -> Vec<MuseMessage> {
+    let mut raw_messages = Vec::new();
+
+    packet.clone().unfold(&mut raw_messages);
+    let mut muse_messages = Vec::with_capacity(raw_messages.len());
+
+    for raw_message in raw_messages {
+        let muse_message_type_option = parse_muse_message_type(raw_message);
+        match muse_message_type_option {
+            Some(muse_message_type) => {
+                let muse_message = MuseMessage {
+                    ip_address: addr,
+                    muse_message_type: muse_message_type,
+                };
+                muse_messages.push(muse_message);
+            }
+            None => (),
+        };
+    }
+
+    muse_messages
+}
+
+fn parse_muse_message_type(raw_message: OscMessage) -> Option<MuseMessageType> {
+    let service = raw_message.addr.as_ref();
+    let args = raw_message
+        .clone()
+        .args
+        .expect("Expected value was not sent by Muse");
+
+    let r = match service {
+        "/muse/eeg" => Some(MuseMessageType::Eeg {
+            a: get_float_from_args(0, &args),
+            b: get_float_from_args(1, &args),
+            c: get_float_from_args(2, &args),
+            d: get_float_from_args(3, &args),
+        }),
+
+        "/muse/acc" => Some(MuseMessageType::Accelerometer {
+            x: get_float_from_args(0, &args),
+            y: get_float_from_args(1, &args),
+            z: get_float_from_args(2, &args),
+        }),
+
+        "/muse/gyro" => Some(MuseMessageType::Gyro {
+            x: get_float_from_args(0, &args),
+            y: get_float_from_args(1, &args),
+            z: get_float_from_args(2, &args),
+        }),
+
+        "/muse/elements/touching_forehead" => Some(MuseMessageType::TouchingForehead {
+            value: get_int_from_args(0, &args) != 0,
+        }),
+
+        "/muse/elements/horseshoe" => Some(MuseMessageType::Horseshoe {
+            a: get_float_from_args(0, &args),
+            b: get_float_from_args(1, &args),
+            c: get_float_from_args(2, &args),
+            d: get_float_from_args(3, &args),
+        }),
+
+        "/muse/elements/alpha_absolute" => Some(MuseMessageType::AlphaAbsolute {
+            a: get_float_from_args(0, &args),
+            b: get_float_from_args(1, &args),
+            c: get_float_from_args(2, &args),
+            d: get_float_from_args(3, &args),
+        }),
+
+        "/muse/elements/beta_absolute" => Some(MuseMessageType::BetaAbsolute {
+            a: get_float_from_args(0, &args),
+            b: get_float_from_args(1, &args),
+            c: get_float_from_args(2, &args),
+            d: get_float_from_args(3, &args),
+        }),
+
+        "/muse/elements/gamma_absolute" => Some(MuseMessageType::GammaAbsolute {
+            a: get_float_from_args(0, &args),
+            b: get_float_from_args(1, &args),
+            c: get_float_from_args(2, &args),
+            d: get_float_from_args(3, &args),
+        }),
+
+        "/muse/elements/delta_absolute" => Some(MuseMessageType::DeltaAbsolute {
+            a: get_float_from_args(0, &args),
+            b: get_float_from_args(1, &args),
+            c: get_float_from_args(2, &args),
+            d: get_float_from_args(3, &args),
+        }),
+
+        "/muse/elements/theta_absolute" => Some(MuseMessageType::ThetaAbsolute {
+            a: get_float_from_args(0, &args),
+            b: get_float_from_args(1, &args),
+            c: get_float_from_args(2, &args),
+            d: get_float_from_args(3, &args),
+        }),
+
+        "/muse/elements/blink" => Some(MuseMessageType::Blink {
+            value: get_int_from_args(0, &args) != 0,
+        }),
+
+        "/muse/batt" => Some(MuseMessageType::Batt {
+            value: (get_int_from_args(1, &args) as f32 / get_int_from_args(0, &args) as f32) as i32,
+        }),
+
+        "/muse/elements/jaw_clench" => Some(MuseMessageType::JawClench {
+            value: get_int_from_args(0, &args) != 0,
+        }),
+
+        _ => {
+            eprintln!("Unparsed message type: {:#?} {:#?}", service, raw_message);
+            None
+        }
+    };
+
+    r
+}
+
+fn get_float_from_args(i: usize, args: &Vec<OscType>) -> f32 {
+    let f = args.get(i).expect("Float was not provided");
+
+    match f {
+        OscType::Float(value) => *value,
+        _ => panic!("Muse value was not a float"),
+    }
+}
+
+fn get_int_from_args(i: usize, args: &Vec<OscType>) -> i32 {
+    let j = args.get(i).expect("Int was not provided");
+    match j {
+        OscType::Int(value) => *value,
+        _ => panic!("Muse value was not an int"),
+    }
+}
