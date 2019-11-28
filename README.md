@@ -2,13 +2,9 @@
   <img src="res/nof1-logo.png">
 </p>
 
-<p align="center">
-  <a href="https://github.com/actions/toolkit"><img alt="GitHub Actions status" src="https://github.com/N-of-1/meme-machine/workflows/Build/badge.svg"></a>
-</p>
+![Build status](https://github.com/N-of-1/meme-machine/workflows/Build/badge.svg)
 
-<p align="center">
-  <a href="https://github.com/actions/toolkit"><img alt="GitHub Actions status" src="https://github.com/N-of-1/meme-machine/workflows/Tests/badge.svg"></a>
-</p>
+![Test status](https://github.com/N-of-1/meme-machine/workflows/Tests/badge.svg)
 
 # Meme Machine - PC Edition
 
