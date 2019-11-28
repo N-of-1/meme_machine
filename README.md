@@ -2,8 +2,8 @@
   <img src="res/nof1-logo.png">
 </p>
 
-Master
-![](https://github.com/N-of-1/meme-machine/workflows/Rust/badge.svg?branch=master) - Dev
+master
+![](https://github.com/N-of-1/meme-machine/workflows/Rust/badge.svg?branch=master) &emsp; dev
 ![](https://github.com/N-of-1/meme-machine/workflows/Rust/badge.svg?branch=dev)
 
 # Meme Machine - Desktop Edition
