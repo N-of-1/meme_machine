@@ -2,9 +2,7 @@
   <img src="res/nof1-logo.png">
 </p>
 
-![Build status](https://github.com/N-of-1/meme-machine/workflows/Build/badge.svg)
-
-![Test status](https://github.com/N-of-1/meme-machine/workflows/Tests/badge.svg)
+![](https://github.com/N-of-1/meme-machine/workflows/Rust/badge.svg)
 
 # Meme Machine - PC Edition
 
