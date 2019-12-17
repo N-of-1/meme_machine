@@ -30,29 +30,34 @@ pub fn view(app: &App, model: &Model, frame: &Frame) {
     draw_key(5, "Delta", line_color_delta, &draw);
     draw_key(6, "Theta", line_color_theta, &draw);
 
-    draw_polygon(line_color_alpha, model.alpha.0, &draw, app, model.scale);
-    draw_polygon(line_color_beta, model.beta.0, &draw, app, model.scale);
-    draw_polygon(line_color_gamma, model.gamma.0, &draw, app, model.scale);
-    draw_polygon(line_color_delta, model.delta.0, &draw, app, model.scale);
-    draw_polygon(line_color_theta, model.theta.0, &draw, app, model.scale);
+    let LEFT_REAR = (-100.0, -100.0);
+    let LEFT_FRONT = (100.0, -100.0);
+    let RIGHT_FRONT = (100.0, 100.0);
+    let RIGHT_REAR = (-100.0, 100.0);
 
-    draw_polygon(line_color_alpha, model.alpha.1, &draw, app, model.scale);
-    draw_polygon(line_color_beta, model.beta.1, &draw, app, model.scale);
-    draw_polygon(line_color_gamma, model.gamma.1, &draw, app, model.scale);
-    draw_polygon(line_color_delta, model.delta.1, &draw, app, model.scale);
-    draw_polygon(line_color_theta, model.theta.1, &draw, app, model.scale);
+    draw_polygon(line_color_alpha, model.alpha.0, &draw, app, model.scale, LEFT_REAR);
+    draw_polygon(line_color_beta, model.beta.0, &draw, app, model.scale, LEFT_REAR);
+    draw_polygon(line_color_gamma, model.gamma.0, &draw, app, model.scale, LEFT_REAR);
+    draw_polygon(line_color_delta, model.delta.0, &draw, app, model.scale, LEFT_REAR);
+    draw_polygon(line_color_theta, model.theta.0, &draw, app, model.scale, LEFT_REAR);
 
-    draw_polygon(line_color_alpha, model.alpha.2, &draw, app, model.scale);
-    draw_polygon(line_color_beta, model.beta.2, &draw, app, model.scale);
-    draw_polygon(line_color_gamma, model.gamma.2, &draw, app, model.scale);
-    draw_polygon(line_color_delta, model.delta.2, &draw, app, model.scale);
-    draw_polygon(line_color_theta, model.theta.2, &draw, app, model.scale);
+    draw_polygon(line_color_alpha, model.alpha.1, &draw, app, model.scale, LEFT_FRONT);
+    draw_polygon(line_color_beta, model.beta.1, &draw, app, model.scale, LEFT_FRONT);
+    draw_polygon(line_color_gamma, model.gamma.1, &draw, app, model.scale, LEFT_FRONT);
+    draw_polygon(line_color_delta, model.delta.1, &draw, app, model.scale, LEFT_FRONT);
+    draw_polygon(line_color_theta, model.theta.1, &draw, app, model.scale, LEFT_FRONT);
 
-    draw_polygon(line_color_alpha, model.alpha.3, &draw, app, model.scale);
-    draw_polygon(line_color_beta, model.beta.3, &draw, app, model.scale);
-    draw_polygon(line_color_gamma, model.gamma.3, &draw, app, model.scale);
-    draw_polygon(line_color_delta, model.delta.3, &draw, app, model.scale);
-    draw_polygon(line_color_theta, model.theta.3, &draw, app, model.scale);
+    draw_polygon(line_color_alpha, model.alpha.2, &draw, app, model.scale, RIGHT_FRONT);
+    draw_polygon(line_color_beta, model.beta.2, &draw, app, model.scale, RIGHT_FRONT);
+    draw_polygon(line_color_gamma, model.gamma.2, &draw, app, model.scale, RIGHT_FRONT);
+    draw_polygon(line_color_delta, model.delta.2, &draw, app, model.scale, RIGHT_FRONT);
+    draw_polygon(line_color_theta, model.theta.2, &draw, app, model.scale, RIGHT_FRONT);
+
+    draw_polygon(line_color_alpha, model.alpha.3, &draw, app, model.scale, RIGHT_REAR);
+    draw_polygon(line_color_beta, model.beta.3, &draw, app, model.scale, RIGHT_REAR);
+    draw_polygon(line_color_gamma, model.gamma.3, &draw, app, model.scale, RIGHT_REAR);
+    draw_polygon(line_color_delta, model.delta.3, &draw, app, model.scale, RIGHT_REAR);
+    draw_polygon(line_color_theta, model.theta.3, &draw, app, model.scale, RIGHT_REAR);
 
     // Write to the window frame.
     draw.to_frame(app, &frame).unwrap();
@@ -77,7 +82,7 @@ fn draw_key(i: i32, text: &str, line_color: Rgba, draw: &nannou::app::Draw) {
     draw.text(text).x(KEY_X).y(y - 10.0);
 }
 
-fn draw_polygon(line_color: Rgba, value: f32, draw: &nannou::app::Draw, app: &App, scale: f32) {
+fn draw_polygon(line_color: Rgba, value: f32, draw: &nannou::app::Draw, app: &App, scale: f32, shift: (f32, f32)) {
     let win = app.window_rect();
     let scale = win.x.end / scale;
     let circle_resolution = 256;
@@ -86,8 +91,8 @@ fn draw_polygon(line_color: Rgba, value: f32, draw: &nannou::app::Draw, app: &Ap
 
     let mut points = Vec::new();
     for i in 0..circle_resolution {
-        let x = (angle * i as f32).cos() * radius;
-        let y = (angle * i as f32).sin() * radius;
+        let x = shift.0 + (angle * i as f32).cos() * radius;
+        let y = shift.1 + (angle * i as f32).sin() * radius;
         points.push(pt2(x, y));
     }
 
