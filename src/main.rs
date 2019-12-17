@@ -61,7 +61,6 @@ pub struct Model {
     receiver: ReceiverDebug,
     clicked: bool,
     clear_background: bool,
-    muse_messages: Vec<MuseMessage>,
     alpha: (f32, f32, f32, f32),
     beta: (f32, f32, f32, f32),
     gamma: (f32, f32, f32, f32),
@@ -98,16 +97,12 @@ fn model(app: &App) -> Model {
 
     let receiver_debug = ReceiverDebug { receiver: receiver };
 
-    // A vec for collecting parsed messages
-    let muse_messages = vec![];
-
     Model {
         tx_eeg: tx_eeg,
         rx_eeg: rx_eeg,
         receiver: receiver_debug,
         clicked: false,
         clear_background: false,
-        muse_messages: muse_messages,
         alpha: (0.0, 0.0, 0.0, 0.0), // 7.5-13Hz
         beta: (0.0, 0.0, 0.0, 0.0),  // 13-30Hz
         gamma: (0.0, 0.0, 0.0, 0.0), // 30-44Hz
@@ -143,7 +138,7 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     }
 }
 
-fn key_released(_app: &App, model: &mut Model, key: Key) {
+fn key_released(_app: &App, _model: &mut Model, key: Key) {
     match key {
         _ => (),
     }
@@ -164,8 +159,6 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 
         for muse_message in muse_messages {
             handle_packet(&muse_message, model);
-
-            model.muse_messages.push(muse_message);
         }
     }
 
@@ -177,12 +170,13 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     }
 }
 
-
-    const BLINK_COUNTDOWN: i32 = 30;
+const FOREHEAD_COUNTDOWN: i32 = 30;
+const BLINK_COUNTDOWN: i32 = 30;
+const CLENCH_COUNTDOWN: i32 = 30;
 
 fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
-                            match muse_message.muse_message_type {
-    MuseMessageType::Accelerometer { x, y, z } => {
+    match muse_message.muse_message_type {
+        MuseMessageType::Accelerometer { x, y, z } => {
                     model.accelerometer = (x, y, z);
                     //TODO Transmit accelerometer
                 },
@@ -190,8 +184,8 @@ fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
                     model.gyro = (x, y, z);
                     //TODO Transmit gyro
                 },
-                MuseMessageType::TouchingForehead { value } => {
-                    model.touching_forehead = BLINK_COUNTDOWN;
+                MuseMessageType::TouchingForehead { value: _ } => {
+                    model.touching_forehead = FOREHEAD_COUNTDOWN;
                     //TODO Transmit touching forehead
                 }
                 MuseMessageType::Horseshoe { a, b, c, d } => {
@@ -238,8 +232,8 @@ fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
                     model.batt = value;
                     //TODO Transmit battery
                 },
-                MuseMessageType::JawClench { value } => {
-                    model.jaw_clench = BLINK_COUNTDOWN;
+                MuseMessageType::JawClench { value: _ } => {
+                    model.jaw_clench = CLENCH_COUNTDOWN;
                     //TODO Transmit jaw clench
                 },
             }
