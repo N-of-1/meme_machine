@@ -745,7 +745,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "meme-machine"
 version = "0.1.0"
 dependencies = [
- "nannou 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nannou 0.12.0 (git+https://github.com/nannou-org/nannou.git)",
  "nannou_osc 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -796,7 +796,7 @@ dependencies = [
 [[package]]
 name = "nannou"
 version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/nannou-org/nannou.git#f2de4f8321127cb57bc9fd5f1a187a9e50a95c79"
 dependencies = [
  "approx 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "cgmath 0.16.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2160,7 +2160,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum memoffset 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "75189eb85871ea5c2e2c15abbdd541185f63b408415e5051f5cac122d8c774b9"
 "checksum metal 0.17.1 (registry+https://github.com/rust-lang/crates.io-index)" = "f83c7dcc2038e12f68493fa3de44235df27b2497178e257185b4b5b5d028a1e4"
 "checksum moltenvk_deps 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)" = "4855da161930485e37eaafd5697f918351916c496139bdc40668cf6ed92f5f9c"
-"checksum nannou 0.12.0 (registry+https://github.com/rust-lang/crates.io-index)" = "25317a8621fdd78168709f408acb77159607667c7c30984c547e9b5c97dd88e8"
+"checksum nannou 0.12.0 (git+https://github.com/nannou-org/nannou.git)" = "<none>"
 "checksum nannou_osc 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c31015d9c0f3473a02f6b0ef9289b4070a48548a3ee0960c2ca139a7d1eb7bd6"
 "checksum nix 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)" = "6c722bee1037d430d0f8e687bbdbf222f27cc6e4e68d5caf630857bb2b6dbdce"
 "checksum nodrop 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)" = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"

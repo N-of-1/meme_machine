@@ -78,8 +78,11 @@ pub struct Model {
 }
 
 fn model(app: &App) -> Model {
+//    let monitor = winit::Window::getPrimaryMonitor();
+
     let _window = app
         .new_window()
+//        .set_fullscreen_on_shortcut(true)
         .with_maximized(true)
         .with_decorations(false)
         .view(view_circles::view)
