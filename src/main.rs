@@ -159,14 +159,30 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
         received_packets.push((addr, packet));
     }
 
-    const BLINK_COUNTDOWN: i32 = 30;
-
     for &(addr, ref packet) in received_packets.iter().rev() {
         let muse_messages = parse_muse_packet(addr, packet);
 
         for muse_message in muse_messages {
-            match muse_message.muse_message_type {
-                MuseMessageType::Accelerometer { x, y, z } => {
+            handle_packet(&muse_message, model);
+
+            model.muse_messages.push(muse_message);
+        }
+    }
+
+    if model.blink > 0 {
+        model.blink = model.blink - 1;
+    }
+    if model.jaw_clench > 0 {
+        model.jaw_clench = model.jaw_clench - 1;
+    }
+}
+
+
+    const BLINK_COUNTDOWN: i32 = 30;
+
+fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
+                            match muse_message.muse_message_type {
+    MuseMessageType::Accelerometer { x, y, z } => {
                     model.accelerometer = (x, y, z);
                     //TODO Transmit accelerometer
                 },
@@ -227,15 +243,4 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
                     //TODO Transmit jaw clench
                 },
             }
-
-            model.muse_messages.push(muse_message);
-        }
-    }
-
-    if model.blink > 0 {
-        model.blink = model.blink - 1;
-    }
-    if model.jaw_clench > 0 {
-        model.jaw_clench = model.jaw_clench - 1;
-    }
 }
