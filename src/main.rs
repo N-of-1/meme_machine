@@ -159,12 +159,6 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
         received_packets.push((addr, packet));
     }
 
-    // TODO Breaks when we remove this- We'll display 10 packets at a time, so remove any excess.
-    // let max_packets = 10;
-    // while model.received_packets.len() > max_packets {
-    //     model.received_packets.remove(0);
-    // }
-
     const BLINK_COUNTDOWN: i32 = 30;
 
     for &(addr, ref packet) in received_packets.iter().rev() {
@@ -172,31 +166,66 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 
         for muse_message in muse_messages {
             match muse_message.muse_message_type {
-                MuseMessageType::Accelerometer { x, y, z } => model.accelerometer = (x, y, z),
-                MuseMessageType::Gyro { x, y, z } => model.gyro = (x, y, z),
+                MuseMessageType::Accelerometer { x, y, z } => {
+                    model.accelerometer = (x, y, z);
+                    //TODO Transmit accelerometer
+                },
+                MuseMessageType::Gyro { x, y, z } => {
+                    model.gyro = (x, y, z);
+                    //TODO Transmit gyro
+                },
                 MuseMessageType::TouchingForehead { value } => {
-                    model.touching_forehead = BLINK_COUNTDOWN
+                    model.touching_forehead = BLINK_COUNTDOWN;
+                    //TODO Transmit touching forehead
                 }
-                MuseMessageType::Horseshoe { a, b, c, d } => model.horseshoe = (a, b, c, d),
-                MuseMessageType::Eeg { a, b, c, d } => model
-                    .tx_eeg
-                    .send(Eeg {
+                MuseMessageType::Horseshoe { a, b, c, d } => {
+                    model.horseshoe = (a, b, c, d);
+                    //TODO Transmit horseshoe
+                },
+                MuseMessageType::Eeg { a, b, c, d } => {
+                    model
+                        .tx_eeg
+                        .send(Eeg {
                         a: a,
                         b: b,
                         c: c,
                         d: d,
-                    })
-                    .expect("Could not send to tx_eeg"),
+                        })
+                        .expect("Could not send to tx_eeg");
+                    //TODO Transmit EEG- need to complete the receiver code
+                },
                 MuseMessageType::AlphaAbsolute { a, b, c, d } => {
                     model.alpha = (a, b, c, d);
+                    //TODO Transmit alpha
                 }
-                MuseMessageType::BetaAbsolute { a, b, c, d } => model.beta = (a, b, c, d),
-                MuseMessageType::GammaAbsolute { a, b, c, d } => model.gamma = (a, b, c, d),
-                MuseMessageType::DeltaAbsolute { a, b, c, d } => model.delta = (a, b, c, d),
-                MuseMessageType::ThetaAbsolute { a, b, c, d } => model.theta = (a, b, c, d),
-                MuseMessageType::Blink { value: _ } => model.blink = BLINK_COUNTDOWN,
-                MuseMessageType::Batt { value } => model.batt = value,
-                MuseMessageType::JawClench { value } => model.jaw_clench = BLINK_COUNTDOWN,
+                MuseMessageType::BetaAbsolute { a, b, c, d } => {
+                    model.beta = (a, b, c, d);
+                    //TODO Trasmit beta
+                },
+                MuseMessageType::GammaAbsolute { a, b, c, d } => {
+                    model.gamma = (a, b, c, d);
+                    //TODO Transmit gamma
+                },
+                MuseMessageType::DeltaAbsolute { a, b, c, d } => {
+                    model.delta = (a, b, c, d);
+                    //TODO Transmit delta
+                },
+                MuseMessageType::ThetaAbsolute { a, b, c, d } => {
+                    model.theta = (a, b, c, d);
+                    //TODO Transmit theta
+                },
+                MuseMessageType::Blink { value: _ } => {
+                    model.blink = BLINK_COUNTDOWN;
+                    //TODO Transmit blink
+                },
+                MuseMessageType::Batt { value } => {
+                    model.batt = value;
+                    //TODO Transmit battery
+                },
+                MuseMessageType::JawClench { value } => {
+                    model.jaw_clench = BLINK_COUNTDOWN;
+                    //TODO Transmit jaw clench
+                },
             }
 
             model.muse_messages.push(muse_message);
