@@ -15,6 +15,12 @@ pub fn view(app: &App, model: &Model, frame: &Frame) {
     let line_color_delta = rgba(0.7, 1.0, 1.0, 1.0);
     let line_color_theta = rgba(1.0, 0.7, 1.0, 1.0);
 
+    const DISTANCE: f32 = 100.0;
+    const LEFT_FRONT: (f32, f32) = (-DISTANCE, -DISTANCE);
+    const RIGHT_FRONT: (f32, f32) = (DISTANCE, -DISTANCE);
+    const RIGHT_REAR: (f32, f32) = (DISTANCE, DISTANCE);
+    const LEFT_REAR: (f32, f32) = (-DISTANCE, DISTANCE);
+
     let draw = app.draw();
     let background_color = BLACK;
 
@@ -30,37 +36,231 @@ pub fn view(app: &App, model: &Model, frame: &Frame) {
     draw_key(5, "Delta", line_color_delta, &draw);
     draw_key(6, "Theta", line_color_theta, &draw);
 
-    let LEFT_REAR = (-100.0, -100.0);
-    let LEFT_FRONT = (100.0, -100.0);
-    let RIGHT_FRONT = (100.0, 100.0);
-    let RIGHT_REAR = (-100.0, 100.0);
+    draw_concentric_polygons(&app, &model, &draw, 0, LEFT_REAR);
+    draw_concentric_polygons(&app, &model, &draw, 1, LEFT_FRONT);
+    draw_concentric_polygons(&app, &model, &draw, 2, RIGHT_FRONT);
+    draw_concentric_polygons(&app, &model, &draw, 3, RIGHT_REAR);
+    // draw_polygon(
+    //     line_color_alpha,
+    //     model.alpha.0,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_REAR,
+    // );
+    // draw_polygon(
+    //     line_color_beta,
+    //     model.beta.0,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_REAR,
+    // );
+    // draw_polygon(
+    //     line_color_gamma,
+    //     model.gamma.0,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_REAR,
+    // );
+    // draw_polygon(
+    //     line_color_delta,
+    //     model.delta.0,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_REAR,
+    // );
+    // draw_polygon(
+    //     line_color_theta,
+    //     model.theta.0,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_REAR,
+    // );
 
-    draw_polygon(line_color_alpha, model.alpha.0, &draw, app, model.scale, LEFT_REAR);
-    draw_polygon(line_color_beta, model.beta.0, &draw, app, model.scale, LEFT_REAR);
-    draw_polygon(line_color_gamma, model.gamma.0, &draw, app, model.scale, LEFT_REAR);
-    draw_polygon(line_color_delta, model.delta.0, &draw, app, model.scale, LEFT_REAR);
-    draw_polygon(line_color_theta, model.theta.0, &draw, app, model.scale, LEFT_REAR);
+    // draw_polygon(
+    //     line_color_alpha,
+    //     model.alpha.1,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_FRONT,
+    // );
+    // draw_polygon(
+    //     line_color_beta,
+    //     model.beta.1,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_FRONT,
+    // );
+    // draw_polygon(
+    //     line_color_gamma,
+    //     model.gamma.1,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_FRONT,
+    // );
+    // draw_polygon(
+    //     line_color_delta,
+    //     model.delta.1,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_FRONT,
+    // );
+    // draw_polygon(
+    //     line_color_theta,
+    //     model.theta.1,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     LEFT_FRONT,
+    // );
 
-    draw_polygon(line_color_alpha, model.alpha.1, &draw, app, model.scale, LEFT_FRONT);
-    draw_polygon(line_color_beta, model.beta.1, &draw, app, model.scale, LEFT_FRONT);
-    draw_polygon(line_color_gamma, model.gamma.1, &draw, app, model.scale, LEFT_FRONT);
-    draw_polygon(line_color_delta, model.delta.1, &draw, app, model.scale, LEFT_FRONT);
-    draw_polygon(line_color_theta, model.theta.1, &draw, app, model.scale, LEFT_FRONT);
+    // draw_polygon(
+    //     line_color_alpha,
+    //     model.alpha.2,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_FRONT,
+    // );
+    // draw_polygon(
+    //     line_color_beta,
+    //     model.beta.2,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_FRONT,
+    // );
+    // draw_polygon(
+    //     line_color_gamma,
+    //     model.gamma.2,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_FRONT,
+    // );
+    // draw_polygon(
+    //     line_color_delta,
+    //     model.delta.2,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_FRONT,
+    // );
+    // draw_polygon(
+    //     line_color_theta,
+    //     model.theta.2,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_FRONT,
+    // );
 
-    draw_polygon(line_color_alpha, model.alpha.2, &draw, app, model.scale, RIGHT_FRONT);
-    draw_polygon(line_color_beta, model.beta.2, &draw, app, model.scale, RIGHT_FRONT);
-    draw_polygon(line_color_gamma, model.gamma.2, &draw, app, model.scale, RIGHT_FRONT);
-    draw_polygon(line_color_delta, model.delta.2, &draw, app, model.scale, RIGHT_FRONT);
-    draw_polygon(line_color_theta, model.theta.2, &draw, app, model.scale, RIGHT_FRONT);
-
-    draw_polygon(line_color_alpha, model.alpha.3, &draw, app, model.scale, RIGHT_REAR);
-    draw_polygon(line_color_beta, model.beta.3, &draw, app, model.scale, RIGHT_REAR);
-    draw_polygon(line_color_gamma, model.gamma.3, &draw, app, model.scale, RIGHT_REAR);
-    draw_polygon(line_color_delta, model.delta.3, &draw, app, model.scale, RIGHT_REAR);
-    draw_polygon(line_color_theta, model.theta.3, &draw, app, model.scale, RIGHT_REAR);
+    // draw_polygon(
+    //     line_color_alpha,
+    //     model.alpha.3,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_REAR,
+    // );
+    // draw_polygon(
+    //     line_color_beta,
+    //     model.beta.3,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_REAR,
+    // );
+    // draw_polygon(
+    //     line_color_gamma,
+    //     model.gamma.3,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_REAR,
+    // );
+    // draw_polygon(
+    //     line_color_delta,
+    //     model.delta.3,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_REAR,
+    // );
+    // draw_polygon(
+    //     line_color_theta,
+    //     model.theta.3,
+    //     &draw,
+    //     app,
+    //     model.scale,
+    //     RIGHT_REAR,
+    // );
 
     // Write to the window frame.
     draw.to_frame(app, &frame).unwrap();
+}
+
+fn draw_concentric_polygons(
+    app: &App,
+    model: &Model,
+    draw: &nannou::app::Draw,
+    index: usize,
+    offset: (f32, f32),
+) {
+    let line_color_alpha = rgba(0.7, 0.7, 1.0, 1.0);
+    let line_color_beta = rgba(0.7, 1.0, 0.7, 1.0);
+    let line_color_gamma = rgba(1.0, 0.7, 0.7, 1.0);
+    let line_color_delta = rgba(0.7, 1.0, 1.0, 1.0);
+    let line_color_theta = rgba(1.0, 0.7, 1.0, 1.0);
+
+    draw_polygon(
+        line_color_alpha,
+        model.alpha[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
+    draw_polygon(
+        line_color_beta,
+        model.beta[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
+    draw_polygon(
+        line_color_gamma,
+        model.gamma[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
+    draw_polygon(
+        line_color_delta,
+        model.delta[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
+    draw_polygon(
+        line_color_theta,
+        model.theta[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
 }
 
 fn blink_color(blink: bool) -> Alpha<Rgb, f32> {
@@ -82,7 +282,14 @@ fn draw_key(i: i32, text: &str, line_color: Rgba, draw: &nannou::app::Draw) {
     draw.text(text).x(KEY_X).y(y - 10.0);
 }
 
-fn draw_polygon(line_color: Rgba, value: f32, draw: &nannou::app::Draw, app: &App, scale: f32, shift: (f32, f32)) {
+fn draw_polygon(
+    line_color: Rgba,
+    value: f32,
+    draw: &nannou::app::Draw,
+    app: &App,
+    scale: f32,
+    shift: (f32, f32),
+) {
     let win = app.window_rect();
     let scale = win.x.end / scale;
     let circle_resolution = 256;
