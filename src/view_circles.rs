@@ -4,7 +4,7 @@ use nannou::prelude::*;
 
 const LINE_WEIGHT: f32 = 10.0;
 const KEY_X: f32 = 600.0;
-const KEY_Y: f32 = -200.0;
+const KEY_Y: f32 = -100.0;
 const KEY_VERT_SPACING: f32 = 30.0;
 
 /// Render concenctric circules associated with alpha, beta, gamma..
@@ -15,6 +15,12 @@ pub fn view(app: &App, model: &Model, frame: &Frame) {
     let line_color_delta = rgba(0.7, 1.0, 1.0, 1.0);
     let line_color_theta = rgba(1.0, 0.7, 1.0, 1.0);
 
+    const DISTANCE: f32 = 100.0;
+    const LEFT_FRONT: (f32, f32) = (-DISTANCE, -DISTANCE);
+    const RIGHT_FRONT: (f32, f32) = (DISTANCE, -DISTANCE);
+    const RIGHT_REAR: (f32, f32) = (DISTANCE, DISTANCE);
+    const LEFT_REAR: (f32, f32) = (-DISTANCE, DISTANCE);
+
     let draw = app.draw();
     let background_color = BLACK;
 
@@ -22,22 +28,87 @@ pub fn view(app: &App, model: &Model, frame: &Frame) {
         draw.background().color(background_color);
     }
 
-    draw_key(0, "Blink", blink_color(model.blink > 0), &draw);
-    draw_key(1, "Jaw Clench", blink_color(model.jaw_clench > 0), &draw);
-    draw_key(2, "Alpha", line_color_alpha, &draw);
-    draw_key(3, "Beta", line_color_beta, &draw);
-    draw_key(4, "Gamma", line_color_gamma, &draw);
-    draw_key(5, "Delta", line_color_delta, &draw);
-    draw_key(6, "Theta", line_color_theta, &draw);
+    draw_key(0, "Blink", blink_color(model.blink_countdown > 0), &draw);
+    draw_key(
+        1,
+        "Jaw Clench",
+        blink_color(model.jaw_clench_countdown > 0),
+        &draw,
+    );
+    draw_key(
+        2,
+        "Forehead",
+        blink_color(model.touching_forehead_countdown > 0),
+        &draw,
+    );
+    draw_key(3, "Alpha", line_color_alpha, &draw);
+    draw_key(4, "Beta", line_color_beta, &draw);
+    draw_key(5, "Gamma", line_color_gamma, &draw);
+    draw_key(6, "Delta", line_color_delta, &draw);
+    draw_key(7, "Theta", line_color_theta, &draw);
 
-    draw_polygon(line_color_alpha, model.alpha.1, &draw, app, model.scale);
-    draw_polygon(line_color_beta, model.beta.1, &draw, app, model.scale);
-    draw_polygon(line_color_gamma, model.gamma.1, &draw, app, model.scale);
-    draw_polygon(line_color_delta, model.delta.1, &draw, app, model.scale);
-    draw_polygon(line_color_theta, model.theta.1, &draw, app, model.scale);
+    draw_concentric_polygons(&app, &model, &draw, 0, LEFT_REAR);
+    draw_concentric_polygons(&app, &model, &draw, 1, LEFT_FRONT);
+    draw_concentric_polygons(&app, &model, &draw, 2, RIGHT_FRONT);
+    draw_concentric_polygons(&app, &model, &draw, 3, RIGHT_REAR);
 
     // Write to the window frame.
     draw.to_frame(app, &frame).unwrap();
+}
+
+fn draw_concentric_polygons(
+    app: &App,
+    model: &Model,
+    draw: &nannou::app::Draw,
+    index: usize,
+    offset: (f32, f32),
+) {
+    let line_color_alpha = rgba(0.7, 0.7, 1.0, 1.0);
+    let line_color_beta = rgba(0.7, 1.0, 0.7, 1.0);
+    let line_color_gamma = rgba(1.0, 0.7, 0.7, 1.0);
+    let line_color_delta = rgba(0.7, 1.0, 1.0, 1.0);
+    let line_color_theta = rgba(1.0, 0.7, 1.0, 1.0);
+
+    draw_polygon(
+        line_color_alpha,
+        model.alpha[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
+    draw_polygon(
+        line_color_beta,
+        model.beta[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
+    draw_polygon(
+        line_color_gamma,
+        model.gamma[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
+    draw_polygon(
+        line_color_delta,
+        model.delta[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
+    draw_polygon(
+        line_color_theta,
+        model.theta[index],
+        &draw,
+        app,
+        model.scale,
+        offset,
+    );
 }
 
 fn blink_color(blink: bool) -> Alpha<Rgb, f32> {
@@ -59,7 +130,14 @@ fn draw_key(i: i32, text: &str, line_color: Rgba, draw: &nannou::app::Draw) {
     draw.text(text).x(KEY_X).y(y - 10.0);
 }
 
-fn draw_polygon(line_color: Rgba, value: f32, draw: &nannou::app::Draw, app: &App, scale: f32) {
+fn draw_polygon(
+    line_color: Rgba,
+    value: f32,
+    draw: &nannou::app::Draw,
+    app: &App,
+    scale: f32,
+    shift: (f32, f32),
+) {
     let win = app.window_rect();
     let scale = win.x.end / scale;
     let circle_resolution = 256;
@@ -68,8 +146,8 @@ fn draw_polygon(line_color: Rgba, value: f32, draw: &nannou::app::Draw, app: &Ap
 
     let mut points = Vec::new();
     for i in 0..circle_resolution {
-        let x = (angle * i as f32).cos() * radius;
-        let y = (angle * i as f32).sin() * radius;
+        let x = shift.0 + (angle * i as f32).cos() * radius;
+        let y = shift.1 + (angle * i as f32).sin() * radius;
         points.push(pt2(x, y));
     }
 
