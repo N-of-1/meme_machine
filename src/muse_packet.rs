@@ -13,16 +13,16 @@ pub enum MuseMessageType {
     Eeg { a: f32, b: f32, c: f32, d: f32 }, // microVolts
     Accelerometer { x: f32, y: f32, z: f32 },
     Gyro { x: f32, y: f32, z: f32 },
-    TouchingForehead { value: bool },
+    Alpha { a: f32, b: f32, c: f32, d: f32 }, // microVolts
+    Beta { a: f32, b: f32, c: f32, d: f32 },  // microVolts
+    Gamma { a: f32, b: f32, c: f32, d: f32 }, // microVolts
+    Delta { a: f32, b: f32, c: f32, d: f32 }, // microVolts
+    Theta { a: f32, b: f32, c: f32, d: f32 }, // microVolts
+    Batt { batt: i32 },
     Horseshoe { a: f32, b: f32, c: f32, d: f32 },
-    AlphaAbsolute { a: f32, b: f32, c: f32, d: f32 }, // microVolts
-    BetaAbsolute { a: f32, b: f32, c: f32, d: f32 },  // microVolts
-    GammaAbsolute { a: f32, b: f32, c: f32, d: f32 }, // microVolts
-    DeltaAbsolute { a: f32, b: f32, c: f32, d: f32 }, // microVolts
-    ThetaAbsolute { a: f32, b: f32, c: f32, d: f32 }, // microVolts
-    Blink { value: bool },
-    Batt { value: i32 },
-    JawClench { value: bool },
+    TouchingForehead { touch: bool },
+    Blink { blink: bool },
+    JawClench { clench: bool },
 }
 
 pub fn parse_muse_packet(addr: SocketAddr, packet: &nannou_osc::Packet) -> Vec<MuseMessage> {
@@ -76,7 +76,7 @@ fn parse_muse_message_type(raw_message: OscMessage) -> Option<MuseMessageType> {
         }),
 
         "/muse/elements/touching_forehead" => Some(MuseMessageType::TouchingForehead {
-            value: get_int_from_args(0, &args) != 0,
+            touch: get_int_from_args(0, &args) != 0,
         }),
 
         "/muse/elements/horseshoe" => Some(MuseMessageType::Horseshoe {
@@ -86,35 +86,35 @@ fn parse_muse_message_type(raw_message: OscMessage) -> Option<MuseMessageType> {
             d: get_float_from_args(3, &args),
         }),
 
-        "/muse/elements/alpha_absolute" => Some(MuseMessageType::AlphaAbsolute {
+        "/muse/elements/alpha_absolute" => Some(MuseMessageType::Alpha {
             a: get_float_from_args(0, &args),
             b: get_float_from_args(1, &args),
             c: get_float_from_args(2, &args),
             d: get_float_from_args(3, &args),
         }),
 
-        "/muse/elements/beta_absolute" => Some(MuseMessageType::BetaAbsolute {
+        "/muse/elements/beta_absolute" => Some(MuseMessageType::Beta {
             a: get_float_from_args(0, &args),
             b: get_float_from_args(1, &args),
             c: get_float_from_args(2, &args),
             d: get_float_from_args(3, &args),
         }),
 
-        "/muse/elements/gamma_absolute" => Some(MuseMessageType::GammaAbsolute {
+        "/muse/elements/gamma_absolute" => Some(MuseMessageType::Gamma {
             a: get_float_from_args(0, &args),
             b: get_float_from_args(1, &args),
             c: get_float_from_args(2, &args),
             d: get_float_from_args(3, &args),
         }),
 
-        "/muse/elements/delta_absolute" => Some(MuseMessageType::DeltaAbsolute {
+        "/muse/elements/delta_absolute" => Some(MuseMessageType::Delta {
             a: get_float_from_args(0, &args),
             b: get_float_from_args(1, &args),
             c: get_float_from_args(2, &args),
             d: get_float_from_args(3, &args),
         }),
 
-        "/muse/elements/theta_absolute" => Some(MuseMessageType::ThetaAbsolute {
+        "/muse/elements/theta_absolute" => Some(MuseMessageType::Theta {
             a: get_float_from_args(0, &args),
             b: get_float_from_args(1, &args),
             c: get_float_from_args(2, &args),
@@ -122,15 +122,15 @@ fn parse_muse_message_type(raw_message: OscMessage) -> Option<MuseMessageType> {
         }),
 
         "/muse/elements/blink" => Some(MuseMessageType::Blink {
-            value: get_int_from_args(0, &args) != 0,
+            blink: get_int_from_args(0, &args) != 0,
         }),
 
         "/muse/batt" => Some(MuseMessageType::Batt {
-            value: (get_int_from_args(1, &args) as f32 / get_int_from_args(0, &args) as f32) as i32,
+            batt: (get_int_from_args(1, &args) as f32 / get_int_from_args(0, &args) as f32) as i32,
         }),
 
         "/muse/elements/jaw_clench" => Some(MuseMessageType::JawClench {
-            value: get_int_from_args(0, &args) != 0,
+            clench: get_int_from_args(0, &args) != 0,
         }),
 
         _ => {

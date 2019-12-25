@@ -4,7 +4,7 @@ use nannou::prelude::*;
 
 const LINE_WEIGHT: f32 = 10.0;
 const KEY_X: f32 = 600.0;
-const KEY_Y: f32 = -200.0;
+const KEY_Y: f32 = -100.0;
 const KEY_VERT_SPACING: f32 = 30.0;
 
 /// Render concenctric circules associated with alpha, beta, gamma..
@@ -28,181 +28,29 @@ pub fn view(app: &App, model: &Model, frame: &Frame) {
         draw.background().color(background_color);
     }
 
-    draw_key(0, "Blink", blink_color(model.blink > 0), &draw);
-    draw_key(1, "Jaw Clench", blink_color(model.jaw_clench > 0), &draw);
-    draw_key(2, "Alpha", line_color_alpha, &draw);
-    draw_key(3, "Beta", line_color_beta, &draw);
-    draw_key(4, "Gamma", line_color_gamma, &draw);
-    draw_key(5, "Delta", line_color_delta, &draw);
-    draw_key(6, "Theta", line_color_theta, &draw);
+    draw_key(0, "Blink", blink_color(model.blink_countdown > 0), &draw);
+    draw_key(
+        1,
+        "Jaw Clench",
+        blink_color(model.jaw_clench_countdown > 0),
+        &draw,
+    );
+    draw_key(
+        2,
+        "Forehead",
+        blink_color(model.touching_forehead_countdown > 0),
+        &draw,
+    );
+    draw_key(3, "Alpha", line_color_alpha, &draw);
+    draw_key(4, "Beta", line_color_beta, &draw);
+    draw_key(5, "Gamma", line_color_gamma, &draw);
+    draw_key(6, "Delta", line_color_delta, &draw);
+    draw_key(7, "Theta", line_color_theta, &draw);
 
     draw_concentric_polygons(&app, &model, &draw, 0, LEFT_REAR);
     draw_concentric_polygons(&app, &model, &draw, 1, LEFT_FRONT);
     draw_concentric_polygons(&app, &model, &draw, 2, RIGHT_FRONT);
     draw_concentric_polygons(&app, &model, &draw, 3, RIGHT_REAR);
-    // draw_polygon(
-    //     line_color_alpha,
-    //     model.alpha.0,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_REAR,
-    // );
-    // draw_polygon(
-    //     line_color_beta,
-    //     model.beta.0,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_REAR,
-    // );
-    // draw_polygon(
-    //     line_color_gamma,
-    //     model.gamma.0,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_REAR,
-    // );
-    // draw_polygon(
-    //     line_color_delta,
-    //     model.delta.0,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_REAR,
-    // );
-    // draw_polygon(
-    //     line_color_theta,
-    //     model.theta.0,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_REAR,
-    // );
-
-    // draw_polygon(
-    //     line_color_alpha,
-    //     model.alpha.1,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_FRONT,
-    // );
-    // draw_polygon(
-    //     line_color_beta,
-    //     model.beta.1,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_FRONT,
-    // );
-    // draw_polygon(
-    //     line_color_gamma,
-    //     model.gamma.1,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_FRONT,
-    // );
-    // draw_polygon(
-    //     line_color_delta,
-    //     model.delta.1,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_FRONT,
-    // );
-    // draw_polygon(
-    //     line_color_theta,
-    //     model.theta.1,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     LEFT_FRONT,
-    // );
-
-    // draw_polygon(
-    //     line_color_alpha,
-    //     model.alpha.2,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_FRONT,
-    // );
-    // draw_polygon(
-    //     line_color_beta,
-    //     model.beta.2,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_FRONT,
-    // );
-    // draw_polygon(
-    //     line_color_gamma,
-    //     model.gamma.2,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_FRONT,
-    // );
-    // draw_polygon(
-    //     line_color_delta,
-    //     model.delta.2,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_FRONT,
-    // );
-    // draw_polygon(
-    //     line_color_theta,
-    //     model.theta.2,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_FRONT,
-    // );
-
-    // draw_polygon(
-    //     line_color_alpha,
-    //     model.alpha.3,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_REAR,
-    // );
-    // draw_polygon(
-    //     line_color_beta,
-    //     model.beta.3,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_REAR,
-    // );
-    // draw_polygon(
-    //     line_color_gamma,
-    //     model.gamma.3,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_REAR,
-    // );
-    // draw_polygon(
-    //     line_color_delta,
-    //     model.delta.3,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_REAR,
-    // );
-    // draw_polygon(
-    //     line_color_theta,
-    //     model.theta.3,
-    //     &draw,
-    //     app,
-    //     model.scale,
-    //     RIGHT_REAR,
-    // );
 
     // Write to the window frame.
     draw.to_frame(app, &frame).unwrap();

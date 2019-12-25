@@ -17,6 +17,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+mod muse_packet;
+mod muse_storage;
+mod view_circles;
+
 use crate::muse_packet::*;
 use nannou::prelude::*;
 use nannou_osc as osc;
@@ -26,9 +30,6 @@ use std::fmt::Formatter;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread;
-
-mod muse_packet;
-mod view_circles;
 
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 34254;
@@ -47,32 +48,25 @@ impl Debug for ReceiverDebug {
     }
 }
 
-struct Eeg {
-    a: f32,
-    b: f32,
-    c: f32,
-    d: f32,
-}
-
 #[derive(Debug)]
 pub struct Model {
-    tx_eeg: Sender<Eeg>,
-    rx_eeg: Receiver<Eeg>,
+    tx_eeg: Sender<MuseMessageType>,
+    rx_eeg: Receiver<MuseMessageType>,
     receiver: ReceiverDebug,
     clicked: bool,
     clear_background: bool,
+    accelerometer: [f32; 3],
+    gyro: [f32; 3],
     alpha: [f32; 4],
     beta: [f32; 4],
     gamma: [f32; 4],
     delta: [f32; 4],
     theta: [f32; 4],
-    blink: i32,
     batt: i32,
-    accelerometer: (f32, f32, f32),
-    gyro: (f32, f32, f32),
-    touching_forehead: i32,
-    horseshoe: (f32, f32, f32, f32),
-    jaw_clench: i32,
+    horseshoe: [f32; 4],
+    blink_countdown: i32,
+    touching_forehead_countdown: i32,
+    jaw_clench_countdown: i32,
     scale: f32,
 }
 
@@ -89,7 +83,7 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let (tx_eeg, rx_eeg): (Sender<Eeg>, Receiver<Eeg>) = mpsc::channel();
+    let (tx_eeg, rx_eeg): (Sender<MuseMessageType>, Receiver<MuseMessageType>) = mpsc::channel();
 
     // Bind an `osc::Receiver` to a port.
     let receiver = osc::receiver(PORT)
@@ -103,18 +97,18 @@ fn model(app: &App) -> Model {
         receiver: receiver_debug,
         clicked: false,
         clear_background: false,
+        accelerometer: [0.0, 0.0, 0.0],
+        gyro: [0.0, 0.0, 0.0],
         alpha: [0.0, 0.0, 0.0, 0.0], // 7.5-13Hz
         beta: [0.0, 0.0, 0.0, 0.0],  // 13-30Hz
         gamma: [0.0, 0.0, 0.0, 0.0], // 30-44Hz
         delta: [0.0, 0.0, 0.0, 0.0], // 1-4Hz
         theta: [0.0, 0.0, 0.0, 0.0], // 4-8Hz
-        blink: 0,
-        batt: 100,
-        accelerometer: (0.0, 0.0, 0.0),
-        gyro: (0.0, 0.0, 0.0),
-        touching_forehead: 0,
-        horseshoe: (0.0, 0.0, 0.0, 0.0),
-        jaw_clench: 0,
+        batt: 0,
+        horseshoe: [0.0, 0.0, 0.0, 0.0],
+        blink_countdown: 0,
+        touching_forehead_countdown: 0,
+        jaw_clench_countdown: 0,
         scale: 2.5,
     }
 }
@@ -162,11 +156,14 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
         }
     }
 
-    if model.blink > 0 {
-        model.blink = model.blink - 1;
+    if model.blink_countdown > 0 {
+        model.blink_countdown = model.blink_countdown - 1;
     }
-    if model.jaw_clench > 0 {
-        model.jaw_clench = model.jaw_clench - 1;
+    if model.jaw_clench_countdown > 0 {
+        model.jaw_clench_countdown = model.jaw_clench_countdown - 1;
+    }
+    if model.touching_forehead_countdown > 0 {
+        model.touching_forehead_countdown = model.touching_forehead_countdown - 1;
     }
 }
 
@@ -177,64 +174,135 @@ const CLENCH_COUNTDOWN: i32 = 30;
 fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
     match muse_message.muse_message_type {
         MuseMessageType::Accelerometer { x, y, z } => {
-            model.accelerometer = (x, y, z);
-            //TODO Transmit accelerometer
-        }
-        MuseMessageType::Gyro { x, y, z } => {
-            model.gyro = (x, y, z);
-            //TODO Transmit gyro
-        }
-        MuseMessageType::TouchingForehead { value: _ } => {
-            model.touching_forehead = FOREHEAD_COUNTDOWN;
-            //TODO Transmit touching forehead
-        }
-        MuseMessageType::Horseshoe { a, b, c, d } => {
-            model.horseshoe = (a, b, c, d);
-            //TODO Transmit horseshoe
-        }
-        MuseMessageType::Eeg { a, b, c, d } => {
+            model.accelerometer = [x, y, z];
             model
                 .tx_eeg
-                .send(Eeg {
+                .send(MuseMessageType::Accelerometer { x: x, y: y, z: z })
+                .expect("Could not tx Accelerometer");
+        }
+        MuseMessageType::Gyro { x, y, z } => {
+            model.gyro = [x, y, z];
+            model
+                .tx_eeg
+                .send(MuseMessageType::Gyro { x: x, y: y, z: z })
+                .expect("Could not tx Gyro");
+        }
+        MuseMessageType::Horseshoe { a, b, c, d } => {
+            model.horseshoe = [a, b, c, d];
+            model
+                .tx_eeg
+                .send(MuseMessageType::Horseshoe {
                     a: a,
                     b: b,
                     c: c,
                     d: d,
                 })
-                .expect("Could not send to tx_eeg");
-            //TODO Transmit EEG- need to complete the receiver code
+                .expect("Could not tx Horeshoe");
         }
-        MuseMessageType::AlphaAbsolute { a, b, c, d } => {
+        MuseMessageType::Eeg { a, b, c, d } => {
+            model
+                .tx_eeg
+                .send(MuseMessageType::Eeg {
+                    a: a,
+                    b: b,
+                    c: c,
+                    d: d,
+                })
+                .expect("Could not send tx Eeg");
+        }
+        MuseMessageType::Alpha { a, b, c, d } => {
             model.alpha = [a, b, c, d];
-            //TODO Transmit alpha
+            model
+                .tx_eeg
+                .send(MuseMessageType::Alpha {
+                    a: a,
+                    b: b,
+                    c: c,
+                    d: d,
+                })
+                .expect("Could not send tx Alpha");
         }
-        MuseMessageType::BetaAbsolute { a, b, c, d } => {
+        MuseMessageType::Beta { a, b, c, d } => {
             model.beta = [a, b, c, d];
-            //TODO Trasmit beta
+            model
+                .tx_eeg
+                .send(MuseMessageType::Beta {
+                    a: a,
+                    b: b,
+                    c: c,
+                    d: d,
+                })
+                .expect("Could not send tx Beta");
         }
-        MuseMessageType::GammaAbsolute { a, b, c, d } => {
+        MuseMessageType::Gamma { a, b, c, d } => {
             model.gamma = [a, b, c, d];
-            //TODO Transmit gamma
+            model
+                .tx_eeg
+                .send(MuseMessageType::Gamma {
+                    a: a,
+                    b: b,
+                    c: c,
+                    d: d,
+                })
+                .expect("Could not send tx Gamma");
         }
-        MuseMessageType::DeltaAbsolute { a, b, c, d } => {
+        MuseMessageType::Delta { a, b, c, d } => {
             model.delta = [a, b, c, d];
-            //TODO Transmit delta
+            model
+                .tx_eeg
+                .send(MuseMessageType::Delta {
+                    a: a,
+                    b: b,
+                    c: c,
+                    d: d,
+                })
+                .expect("Could not send tx Delta");
         }
-        MuseMessageType::ThetaAbsolute { a, b, c, d } => {
+        MuseMessageType::Theta { a, b, c, d } => {
             model.theta = [a, b, c, d];
-            //TODO Transmit theta
+            model
+                .tx_eeg
+                .send(MuseMessageType::Theta {
+                    a: a,
+                    b: b,
+                    c: c,
+                    d: d,
+                })
+                .expect("Could not send tx Theta");
         }
-        MuseMessageType::Blink { value: _ } => {
-            model.blink = BLINK_COUNTDOWN;
-            //TODO Transmit blink
+        MuseMessageType::Batt { batt: batt } => {
+            model.batt = batt;
+            model
+                .tx_eeg
+                .send(MuseMessageType::Batt { batt: batt })
+                .expect("Could not tx Batt");
         }
-        MuseMessageType::Batt { value } => {
-            model.batt = value;
-            //TODO Transmit battery
+        MuseMessageType::TouchingForehead { touch: touch } => {
+            if !touch {
+                model.touching_forehead_countdown = FOREHEAD_COUNTDOWN;
+            }
+            model
+                .tx_eeg
+                .send(MuseMessageType::TouchingForehead { touch: touch })
+                .expect("Could not tx TouchingForehead");
         }
-        MuseMessageType::JawClench { value: _ } => {
-            model.jaw_clench = CLENCH_COUNTDOWN;
-            //TODO Transmit jaw clench
+        MuseMessageType::Blink { blink: blink } => {
+            if blink {
+                model.blink_countdown = BLINK_COUNTDOWN;
+            }
+            model
+                .tx_eeg
+                .send(MuseMessageType::Blink { blink: blink })
+                .expect("Could not tx Blink");
+        }
+        MuseMessageType::JawClench { clench: clench } => {
+            if clench {
+                model.jaw_clench_countdown = CLENCH_COUNTDOWN;
+            }
+            model
+                .tx_eeg
+                .send(MuseMessageType::JawClench { clench: clench })
+                .expect("Could not tx Clench");
         }
     }
 }
