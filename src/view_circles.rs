@@ -7,7 +7,7 @@ const KEY_X: f32 = 600.0;
 const KEY_Y: f32 = -100.0;
 const KEY_VERT_SPACING: f32 = 30.0;
 
-pub const COLOR_NOF1_TURQOISE: Srgb<u8> = Srgb {
+pub const _COLOR_NOF1_TURQOISE: Srgb<u8> = Srgb {
     red: 0,
     green: 200,
     blue: 200,

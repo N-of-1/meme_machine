@@ -52,8 +52,8 @@ impl Debug for ReceiverDebug {
 #[derive(Debug)]
 pub struct Model {
     message_receive_time: Duration,
-    tx_eeg: Sender<MuseMessageType>,
-    rx_eeg: Receiver<MuseMessageType>,
+    tx_eeg: Sender<(Duration, MuseMessageType)>,
+    rx_eeg: Receiver<(Duration, MuseMessageType)>,
     receiver: ReceiverDebug,
     clicked: bool,
     clear_background: bool,
@@ -86,7 +86,10 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let (tx_eeg, rx_eeg): (Sender<MuseMessageType>, Receiver<MuseMessageType>) = mpsc::channel();
+    let (tx_eeg, rx_eeg): (
+        Sender<(Duration, MuseMessageType)>,
+        Receiver<(Duration, MuseMessageType)>,
+    ) = mpsc::channel();
 
     // Bind an `osc::Receiver` to a port.
     let receiver = osc::receiver(PORT)
@@ -164,7 +167,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         let muse_messages = parse_muse_packet(addr, packet);
 
         for muse_message in muse_messages {
-            handle_packet(&muse_message, model);
+            handle_message(&muse_message, model);
         }
     }
 
@@ -183,110 +186,137 @@ const FOREHEAD_COUNTDOWN: i32 = 30;
 const BLINK_COUNTDOWN: i32 = 30;
 const CLENCH_COUNTDOWN: i32 = 30;
 
-fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
+fn handle_message(muse_message: &MuseMessage, model: &mut Model) {
     match muse_message.muse_message_type {
         MuseMessageType::Accelerometer { x, y, z } => {
             model.accelerometer = [x, y, z];
             model
                 .tx_eeg
-                .send(MuseMessageType::Accelerometer { x: x, y: y, z: z })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::Accelerometer { x: x, y: y, z: z },
+                ))
                 .expect("Could not tx Accelerometer");
         }
         MuseMessageType::Gyro { x, y, z } => {
             model.gyro = [x, y, z];
             model
                 .tx_eeg
-                .send(MuseMessageType::Gyro { x: x, y: y, z: z })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::Gyro { x: x, y: y, z: z },
+                ))
                 .expect("Could not tx Gyro");
         }
         MuseMessageType::Horseshoe { a, b, c, d } => {
             model.horseshoe = [a, b, c, d];
             model
                 .tx_eeg
-                .send(MuseMessageType::Horseshoe {
-                    a: a,
-                    b: b,
-                    c: c,
-                    d: d,
-                })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::Horseshoe {
+                        a: a,
+                        b: b,
+                        c: c,
+                        d: d,
+                    },
+                ))
                 .expect("Could not tx Horeshoe");
         }
         MuseMessageType::Eeg { a, b, c, d } => {
             model
                 .tx_eeg
-                .send(MuseMessageType::Eeg {
-                    a: a,
-                    b: b,
-                    c: c,
-                    d: d,
-                })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::Eeg {
+                        a: a,
+                        b: b,
+                        c: c,
+                        d: d,
+                    },
+                ))
                 .expect("Could not send tx Eeg");
         }
         MuseMessageType::Alpha { a, b, c, d } => {
             model.alpha = [a, b, c, d];
             model
                 .tx_eeg
-                .send(MuseMessageType::Alpha {
-                    a: a,
-                    b: b,
-                    c: c,
-                    d: d,
-                })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::Alpha {
+                        a: a,
+                        b: b,
+                        c: c,
+                        d: d,
+                    },
+                ))
                 .expect("Could not send tx Alpha");
         }
         MuseMessageType::Beta { a, b, c, d } => {
             model.beta = [a, b, c, d];
             model
                 .tx_eeg
-                .send(MuseMessageType::Beta {
-                    a: a,
-                    b: b,
-                    c: c,
-                    d: d,
-                })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::Beta {
+                        a: a,
+                        b: b,
+                        c: c,
+                        d: d,
+                    },
+                ))
                 .expect("Could not send tx Beta");
         }
         MuseMessageType::Gamma { a, b, c, d } => {
             model.gamma = [a, b, c, d];
             model
                 .tx_eeg
-                .send(MuseMessageType::Gamma {
-                    a: a,
-                    b: b,
-                    c: c,
-                    d: d,
-                })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::Gamma {
+                        a: a,
+                        b: b,
+                        c: c,
+                        d: d,
+                    },
+                ))
                 .expect("Could not send tx Gamma");
         }
         MuseMessageType::Delta { a, b, c, d } => {
             model.delta = [a, b, c, d];
             model
                 .tx_eeg
-                .send(MuseMessageType::Delta {
-                    a: a,
-                    b: b,
-                    c: c,
-                    d: d,
-                })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::Delta {
+                        a: a,
+                        b: b,
+                        c: c,
+                        d: d,
+                    },
+                ))
                 .expect("Could not send tx Delta");
         }
         MuseMessageType::Theta { a, b, c, d } => {
             model.theta = [a, b, c, d];
             model
                 .tx_eeg
-                .send(MuseMessageType::Theta {
-                    a: a,
-                    b: b,
-                    c: c,
-                    d: d,
-                })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::Theta {
+                        a: a,
+                        b: b,
+                        c: c,
+                        d: d,
+                    },
+                ))
                 .expect("Could not send tx Theta");
         }
         MuseMessageType::Batt { batt } => {
             model.batt = batt;
             model
                 .tx_eeg
-                .send(MuseMessageType::Batt { batt: batt })
+                .send((muse_message.time, MuseMessageType::Batt { batt: batt }))
                 .expect("Could not tx Batt");
         }
         MuseMessageType::TouchingForehead { touch } => {
@@ -295,7 +325,10 @@ fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
             }
             model
                 .tx_eeg
-                .send(MuseMessageType::TouchingForehead { touch: touch })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::TouchingForehead { touch: touch },
+                ))
                 .expect("Could not tx TouchingForehead");
         }
         MuseMessageType::Blink { blink } => {
@@ -304,7 +337,7 @@ fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
             }
             model
                 .tx_eeg
-                .send(MuseMessageType::Blink { blink: blink })
+                .send((muse_message.time, MuseMessageType::Blink { blink: blink }))
                 .expect("Could not tx Blink");
         }
         MuseMessageType::JawClench { clench } => {
@@ -313,7 +346,10 @@ fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
             }
             model
                 .tx_eeg
-                .send(MuseMessageType::JawClench { clench: clench })
+                .send((
+                    muse_message.time,
+                    MuseMessageType::JawClench { clench: clench },
+                ))
                 .expect("Could not tx Clench");
         }
     }
