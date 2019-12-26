@@ -29,7 +29,8 @@ use std::fmt::Debug;
 use std::fmt::Formatter;
 use std::sync::mpsc;
 use std::sync::mpsc::{Receiver, Sender};
-use std::thread;
+use std::time::Duration;
+// use std::thread;
 
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 34254;
@@ -50,6 +51,7 @@ impl Debug for ReceiverDebug {
 
 #[derive(Debug)]
 pub struct Model {
+    message_receive_time: Duration,
     tx_eeg: Sender<MuseMessageType>,
     rx_eeg: Receiver<MuseMessageType>,
     receiver: ReceiverDebug,
@@ -75,7 +77,6 @@ fn model(app: &App) -> Model {
     let _window = app
         .new_window()
         .with_maximized(true)
-        //        .with_fullscreen(Some(monitor))
         .with_decorations(false)
         .view(view_circles::view)
         .mouse_pressed(mouse_pressed)
@@ -94,6 +95,7 @@ fn model(app: &App) -> Model {
     let receiver_debug = ReceiverDebug { receiver: receiver };
 
     Model {
+        message_receive_time: Duration::from_secs(0),
         tx_eeg: tx_eeg,
         rx_eeg: rx_eeg,
         receiver: receiver_debug,
@@ -280,14 +282,14 @@ fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
                 })
                 .expect("Could not send tx Theta");
         }
-        MuseMessageType::Batt { batt: batt } => {
+        MuseMessageType::Batt { batt } => {
             model.batt = batt;
             model
                 .tx_eeg
                 .send(MuseMessageType::Batt { batt: batt })
                 .expect("Could not tx Batt");
         }
-        MuseMessageType::TouchingForehead { touch: touch } => {
+        MuseMessageType::TouchingForehead { touch } => {
             if !touch {
                 model.touching_forehead_countdown = FOREHEAD_COUNTDOWN;
             }
@@ -296,7 +298,7 @@ fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
                 .send(MuseMessageType::TouchingForehead { touch: touch })
                 .expect("Could not tx TouchingForehead");
         }
-        MuseMessageType::Blink { blink: blink } => {
+        MuseMessageType::Blink { blink } => {
             if blink {
                 model.blink_countdown = BLINK_COUNTDOWN;
             }
@@ -305,7 +307,7 @@ fn handle_packet(muse_message: &MuseMessage, model: &mut Model) {
                 .send(MuseMessageType::Blink { blink: blink })
                 .expect("Could not tx Blink");
         }
-        MuseMessageType::JawClench { clench: clench } => {
+        MuseMessageType::JawClench { clench } => {
             if clench {
                 model.jaw_clench_countdown = CLENCH_COUNTDOWN;
             }

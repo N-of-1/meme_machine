@@ -1,9 +1,12 @@
 use nannou_osc::rosc::OscMessage;
 use nannou_osc::rosc::OscType;
 use std::net::SocketAddr;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[derive(Clone, Debug)]
 pub struct MuseMessage {
+    //TODO Add message receive time here
+    pub time: Duration, // Since UNIX_EPOCH, the beginning of 1970
     pub ip_address: SocketAddr,
     pub muse_message_type: MuseMessageType,
 }
@@ -27,6 +30,11 @@ pub enum MuseMessageType {
 
 pub fn parse_muse_packet(addr: SocketAddr, packet: &nannou_osc::Packet) -> Vec<MuseMessage> {
     let mut raw_messages = Vec::new();
+    let time = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("System clock is not set correctly");
+
+    //TODO Add current time as message receive time here
 
     packet.clone().unfold(&mut raw_messages);
     let mut muse_messages = Vec::with_capacity(raw_messages.len());
@@ -36,6 +44,7 @@ pub fn parse_muse_packet(addr: SocketAddr, packet: &nannou_osc::Packet) -> Vec<M
         match muse_message_type_option {
             Some(muse_message_type) => {
                 let muse_message = MuseMessage {
+                    time: time,
                     ip_address: addr,
                     muse_message_type: muse_message_type,
                 };
