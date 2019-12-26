@@ -112,7 +112,7 @@ fn model(app: &App) -> Model {
         touching_forehead_countdown: 0,
         jaw_clench_countdown: 0,
         scale: 2.5,
-        full_screen: false,
+        full_screen: true, // set "false" if not MacOS (MoltenVK bug)
     }
 }
 

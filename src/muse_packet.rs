@@ -56,12 +56,21 @@ fn parse_muse_message_type(raw_message: OscMessage) -> Option<MuseMessageType> {
         .expect("Expected value was not sent by Muse");
 
     let r = match service {
-        "/muse/eeg" => Some(MuseMessageType::Eeg {
-            a: get_float_from_args(0, &args),
-            b: get_float_from_args(1, &args),
-            c: get_float_from_args(2, &args),
-            d: get_float_from_args(3, &args),
-        }),
+        "/muse/eeg" => {
+            let a = get_float_from_args(0, &args);
+            let b = get_float_from_args(0, &args);
+            let c = get_float_from_args(0, &args);
+            let d = get_float_from_args(0, &args);
+
+            // println!("EEG: [{:#?}, {:#?}, {:#?}, {:#?}]", a, b, c, d);
+
+            Some(MuseMessageType::Eeg {
+                a: a,
+                b: b,
+                c: c,
+                d: d,
+            })
+        }
 
         "/muse/acc" => Some(MuseMessageType::Accelerometer {
             x: get_float_from_args(0, &args),
@@ -121,9 +130,12 @@ fn parse_muse_message_type(raw_message: OscMessage) -> Option<MuseMessageType> {
             d: get_float_from_args(3, &args),
         }),
 
-        "/muse/elements/blink" => Some(MuseMessageType::Blink {
-            blink: get_int_from_args(0, &args) != 0,
-        }),
+        "/muse/elements/blink" => {
+            let blink = get_int_from_args(0, &args);
+            //            println!("Blink: {:#?}", blink);
+
+            Some(MuseMessageType::Blink { blink: blink != 0 })
+        }
 
         "/muse/batt" => Some(MuseMessageType::Batt {
             batt: (get_int_from_args(1, &args) as f32 / get_int_from_args(0, &args) as f32) as i32,
