@@ -68,15 +68,14 @@ pub struct Model {
     touching_forehead_countdown: i32,
     jaw_clench_countdown: i32,
     scale: f32,
+    full_screen: bool,
 }
 
 fn model(app: &App) -> Model {
-//    let monitor = winit::Window::getPrimaryMonitor();
-
     let _window = app
         .new_window()
-//        .set_fullscreen_on_shortcut(true)
         .with_maximized(true)
+        //        .with_fullscreen(Some(monitor))
         .with_decorations(false)
         .view(view_circles::view)
         .mouse_pressed(mouse_pressed)
@@ -113,6 +112,7 @@ fn model(app: &App) -> Model {
         touching_forehead_countdown: 0,
         jaw_clench_countdown: 0,
         scale: 2.5,
+        full_screen: false,
     }
 }
 
@@ -131,6 +131,7 @@ fn mouse_released(_app: &App, model: &mut Model, _button: MouseButton) {
 fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Space => model.clear_background = !model.clear_background,
+        Key::F => model.full_screen = !model.full_screen,
         _ => (),
     }
 }
@@ -141,10 +142,16 @@ fn key_released(_app: &App, _model: &mut Model, key: Key) {
     }
 }
 
-fn update(_app: &App, model: &mut Model, _update: Update) {
+fn update(app: &App, model: &mut Model, _update: Update) {
     //     cls();
     //     println!("update: model: alpha: {:#?}", model.alpha);
     let mut received_packets = Vec::new();
+
+    if !model.full_screen {
+        model.full_screen = true;
+        let monitor = app.main_window().current_monitor();
+        app.main_window().set_fullscreen(Some(monitor));
+    }
 
     // Receive any pending osc packets.
     for (packet, addr) in model.receiver.receiver.try_iter() {
