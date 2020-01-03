@@ -3,8 +3,8 @@
 </p>
 
 master
-![Master branch build status](https://github.com/N-of-1/meme-machine/workflows/Rust/badge.svg?branch=master) &emsp; dev
-![Test branch build status](https://github.com/N-of-1/meme-machine/workflows/Rust/badge.svg?branch=dev)
+![Master branch build status](https://github.com/N-of-1/meme_machine/workflows/Rust/badge.svg?branch=master) &emsp; dev
+![Test branch build status](https://github.com/N-of-1/meme_machine/workflows/Rust/badge.svg?branch=dev)
 
 # Meme Machine - Desktop Edition
 
