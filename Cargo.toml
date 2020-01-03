@@ -1,6 +1,6 @@
 [package]
 name = "meme_machine"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Paul Houghton <paulirotta@gmail.com>"]
 edition = "2018"
 

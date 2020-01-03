@@ -770,7 +770,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "meme_machine"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "meme_machine_database 0.1.2 (git+https://github.com/N-of-1/meme_machine_database.git)",
  "nannou 0.12.0 (git+https://github.com/nannou-org/nannou.git)",
