@@ -21,6 +21,8 @@ mod muse_packet;
 mod muse_storage;
 mod view_circles;
 
+extern crate meme_machine_database;
+
 use crate::muse_packet::*;
 use nannou::prelude::*;
 use nannou_osc as osc;

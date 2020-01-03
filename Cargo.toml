@@ -10,6 +10,7 @@ edition = "2018"
 # nannou = "0.12.0"
 nannou = { git = "https://github.com/nannou-org/nannou.git" }
 nannou_osc = "0.1.0"
+meme_machine_database = {git = "https://github.com/N-of-1/meme_machine_database.git"}
 
 [profile.release]
 opt-level = 3
