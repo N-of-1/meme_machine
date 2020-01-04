@@ -37,6 +37,10 @@ use std::time::Duration;
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 34254;
 
+const FOREHEAD_COUNTDOWN: i32 = 30;
+const BLINK_COUNTDOWN: i32 = 30;
+const CLENCH_COUNTDOWN: i32 = 30;
+
 fn main() {
     nannou::app(model).update(update).run();
 }
@@ -128,7 +132,7 @@ fn _cls() {
 }
 
 fn is_full_screen_capable_platform() -> bool {
-    !cfg!(macos)
+    !cfg!(target_os = "macos")
 }
 
 fn mouse_pressed(_app: &App, model: &mut Model, _button: MouseButton) {
@@ -157,6 +161,8 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     //     cls();
     //     println!("update: model: alpha: {:#?}", model.alpha);
     let mut received_packets = Vec::new();
+
+    // println!("Full screen capable: {}", is_full_screen_capable_platform());
 
     if is_full_screen_capable_platform() && !model.full_screen {
         model.full_screen = true;
@@ -187,10 +193,6 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         model.touching_forehead_countdown = model.touching_forehead_countdown - 1;
     }
 }
-
-const FOREHEAD_COUNTDOWN: i32 = 30;
-const BLINK_COUNTDOWN: i32 = 30;
-const CLENCH_COUNTDOWN: i32 = 30;
 
 fn handle_message(muse_message: &MuseMessage, model: &mut Model) {
     match muse_message.muse_message_type {
