@@ -127,6 +127,10 @@ fn _cls() {
     print!("{}[2J", 27 as char);
 }
 
+fn is_full_screen_capable_platform() -> bool {
+    !cfg!(macos)
+}
+
 fn mouse_pressed(_app: &App, model: &mut Model, _button: MouseButton) {
     model.clicked = true;
 }
@@ -154,7 +158,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     //     println!("update: model: alpha: {:#?}", model.alpha);
     let mut received_packets = Vec::new();
 
-    if !model.full_screen {
+    if is_full_screen_capable_platform() && !model.full_screen {
         model.full_screen = true;
         let monitor = app.main_window().current_monitor();
         app.main_window().set_fullscreen(Some(monitor));
