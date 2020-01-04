@@ -1,3 +1,4 @@
+use crate::DisplayType;
 use crate::Model;
 use nannou::prelude::*;
 use std::marker::PhantomData;
@@ -59,17 +60,52 @@ pub const COLOR_THETA: Srgb<u8> = Srgb {
 
 /// Render concenctric circules associated with alpha, beta, gamma..
 pub fn view(app: &App, model: &Model, frame: &Frame) {
+    let draw = &app.draw();
+
+    if (app.elapsed_frames() % 10) == 1 || model.clear_background {
+        draw.background().color(COLOR_BACKGROUND);
+    }
+
+    match model.display_type {
+        DisplayType::FourCircles => draw_four_circles_view(app, model, draw),
+        DisplayType::Dowsiness => draw_drowsiness_view(app, model, draw),
+        DisplayType::Emotion => draw_emotion_view(app, model, draw),
+    }
+
+    // Write to the window frame.
+    draw.to_frame(app, &frame).unwrap();
+}
+
+fn draw_emotion_view(app: &App, model: &Model, draw: &nannou::app::Draw) {
+    const DISTANCE: f32 = 0.0;
+    const LEFT_FRONT: (f32, f32) = (-DISTANCE, -DISTANCE);
+    const _RIGHT_FRONT: (f32, f32) = (DISTANCE, -DISTANCE);
+    const _RIGHT_REAR: (f32, f32) = (DISTANCE, DISTANCE);
+    const _LEFT_REAR: (f32, f32) = (-DISTANCE, DISTANCE);
+    //    draw_concentric_polygons(&app, &model, &draw, 0, LEFT_REAR);
+    draw_concentric_polygons(&app, &model, &draw, 1, LEFT_FRONT);
+    //    draw_concentric_polygons(&app, &model, &draw, 2, RIGHT_FRONT);
+    //    draw_concentric_polygons(&app, &model, &draw, 3, RIGHT_REAR);
+}
+
+fn draw_drowsiness_view(app: &App, model: &Model, draw: &nannou::app::Draw) {
     const DISTANCE: f32 = 100.0;
     const LEFT_FRONT: (f32, f32) = (-DISTANCE, -DISTANCE);
     const RIGHT_FRONT: (f32, f32) = (DISTANCE, -DISTANCE);
     const RIGHT_REAR: (f32, f32) = (DISTANCE, DISTANCE);
     const LEFT_REAR: (f32, f32) = (-DISTANCE, DISTANCE);
+    draw_concentric_polygons(&app, &model, &draw, 0, LEFT_REAR);
+    draw_concentric_polygons(&app, &model, &draw, 1, LEFT_FRONT);
+    draw_concentric_polygons(&app, &model, &draw, 2, RIGHT_FRONT);
+    draw_concentric_polygons(&app, &model, &draw, 3, RIGHT_REAR);
+}
 
-    let draw = app.draw();
-
-    if (app.elapsed_frames() % 10) == 1 || model.clear_background {
-        draw.background().color(COLOR_BACKGROUND);
-    }
+fn draw_four_circles_view(app: &App, model: &Model, draw: &nannou::app::Draw) {
+    const DISTANCE: f32 = 100.0;
+    const LEFT_FRONT: (f32, f32) = (-DISTANCE, -DISTANCE);
+    const RIGHT_FRONT: (f32, f32) = (DISTANCE, -DISTANCE);
+    const RIGHT_REAR: (f32, f32) = (DISTANCE, DISTANCE);
+    const LEFT_REAR: (f32, f32) = (-DISTANCE, DISTANCE);
 
     draw_key(0, "Blink", blink_color(model.blink_countdown > 0), &draw);
     draw_key(
@@ -94,9 +130,6 @@ pub fn view(app: &App, model: &Model, frame: &Frame) {
     draw_concentric_polygons(&app, &model, &draw, 1, LEFT_FRONT);
     draw_concentric_polygons(&app, &model, &draw, 2, RIGHT_FRONT);
     draw_concentric_polygons(&app, &model, &draw, 3, RIGHT_REAR);
-
-    // Write to the window frame.
-    draw.to_frame(app, &frame).unwrap();
 }
 
 fn draw_concentric_polygons(
