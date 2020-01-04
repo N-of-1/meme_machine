@@ -76,6 +76,10 @@ pub fn view(app: &App, model: &Model, frame: &Frame) {
     draw.to_frame(app, &frame).unwrap();
 }
 
+fn average_from_four_electrodes(x: &[f32; 4]) -> f32 {
+    (x[0] + x[1] + x[2] + x[3]) / 4.0
+}
+
 fn draw_emotion_view(app: &App, model: &Model, draw: &nannou::app::Draw) {
     const DISTANCE: f32 = 0.0;
     const LEFT_FRONT: (f32, f32) = (-DISTANCE, -DISTANCE);
@@ -89,15 +93,25 @@ fn draw_emotion_view(app: &App, model: &Model, draw: &nannou::app::Draw) {
 }
 
 fn draw_drowsiness_view(app: &App, model: &Model, draw: &nannou::app::Draw) {
-    const DISTANCE: f32 = 100.0;
-    const LEFT_FRONT: (f32, f32) = (-DISTANCE, -DISTANCE);
-    const RIGHT_FRONT: (f32, f32) = (DISTANCE, -DISTANCE);
-    const RIGHT_REAR: (f32, f32) = (DISTANCE, DISTANCE);
-    const LEFT_REAR: (f32, f32) = (-DISTANCE, DISTANCE);
-    draw_concentric_polygons(&app, &model, &draw, 0, LEFT_REAR);
-    draw_concentric_polygons(&app, &model, &draw, 1, LEFT_FRONT);
-    draw_concentric_polygons(&app, &model, &draw, 2, RIGHT_FRONT);
-    draw_concentric_polygons(&app, &model, &draw, 3, RIGHT_REAR);
+    let lizard_mind = (average_from_four_electrodes(&model.theta)
+        + average_from_four_electrodes(&model.delta))
+        / 2.0;
+    draw_polygon(
+        COLOR_THETA,
+        lizard_mind,
+        &draw,
+        app,
+        model.scale,
+        (0.0, 0.0),
+    );
+    draw_polygon(
+        COLOR_ALPHA,
+        average_from_four_electrodes(&model.alpha),
+        &draw,
+        app,
+        model.scale,
+        (0.0, 0.0),
+    );
 }
 
 fn draw_four_circles_view(app: &App, model: &Model, draw: &nannou::app::Draw) {
