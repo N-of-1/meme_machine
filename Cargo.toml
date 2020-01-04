@@ -1,6 +1,6 @@
 [package]
 name = "meme_machine"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Paul Houghton <paulirotta@gmail.com>"]
 edition = "2018"
 
@@ -10,7 +10,7 @@ edition = "2018"
 # nannou = "0.12.0"
 nannou = { git = "https://github.com/nannou-org/nannou.git" }
 nannou_osc = "0.1.0"
-meme_machine_database = {git = "https://github.com/N-of-1/meme_machine_database.git", version = "0.2.1"}
+meme_machine_database = {git = "https://github.com/N-of-1/meme_machine_database.git", version = "0.2.0"}
 
 [profile.release]
 opt-level = 3
