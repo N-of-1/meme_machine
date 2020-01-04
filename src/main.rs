@@ -55,6 +55,13 @@ impl Debug for ReceiverDebug {
     }
 }
 
+#[derive(Clone, Debug)]
+pub enum DisplayType {
+    FourCircles,
+    Dowsiness,
+    Emotion,
+}
+
 #[derive(Debug)]
 pub struct Model {
     message_receive_time: Duration,
@@ -77,6 +84,7 @@ pub struct Model {
     jaw_clench_countdown: i32,
     scale: f32,
     full_screen: bool,
+    display_type: DisplayType,
 }
 
 fn model(app: &App) -> Model {
@@ -124,6 +132,7 @@ fn model(app: &App) -> Model {
         jaw_clench_countdown: 0,
         scale: 2.5,
         full_screen: false,
+        display_type: DisplayType::FourCircles,
     }
 }
 
@@ -147,6 +156,9 @@ fn key_pressed(_app: &App, model: &mut Model, key: Key) {
     match key {
         Key::Space => model.clear_background = !model.clear_background,
         Key::F => model.full_screen = !model.full_screen,
+        Key::F1 => model.display_type = DisplayType::FourCircles,
+        Key::F2 => model.display_type = DisplayType::Dowsiness,
+        Key::F3 => model.display_type = DisplayType::Emotion,
         _ => (),
     }
 }
